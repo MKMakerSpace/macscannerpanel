@@ -41,8 +41,8 @@ def login_required(f):
     return wrap
 
 
-@login_required
 @app.route('/')
+@login_required
 def home():
     data = Scanner.query.all()
     return render_template('index.html', data=data)
@@ -57,12 +57,12 @@ def login():
             session['logged_in'] = True
             return redirect(url_for('home'))
         else:
-            pass
+            return render_template('login.html')
     return render_template('login.html')
 
 
-@login_required
 @app.route('/new', methods=['POST', 'GET'])
+@login_required
 def new():
     if request.method == 'POST':
         mac = request.form['mac']
@@ -81,10 +81,11 @@ def action_remove():
     entry = request.form['id']
     Scanner.query.filter_by(id=entry).delete()
     db.session.commit()
-
     return redirect(url_for('home'))
 
+
 @app.route('/logout')
+@login_required
 def logout():
     session.pop('logged_in', None)
     return redirect(url_for('login'))
