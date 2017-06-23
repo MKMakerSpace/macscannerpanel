@@ -84,7 +84,7 @@
             <nav class="sidebar-nav">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.html"><i class="icon-speedometer"></i> Dashboard </a>
+                        <a class="nav-link" href="/"><i class="icon-speedometer"></i> Dashboard </a>
 
 
 
@@ -132,13 +132,13 @@
                                                 <script>
                                                     function del_{{ entry.id }}() {
                                                         swal({
-                                                                title: "Ajax request example",
-                                                                text: "Submit to run ajax request",
+                                                                title: "Are you sure?",
+                                                                text: "The mac address ({{ entry.mac }}) will be removed from the system.",
                                                                 type: "warning",
                                                                 confirmButtonColor: '#f86c6b',
                                                                 cancelButtonColor: '#20a8d8',
-                                                                confirmButtonText: 'Yes, delete it!',
-                                                                cancelButtonText: 'No, cancel!',
+                                                                confirmButtonText: 'Delete',
+                                                                cancelButtonText: 'Cancel',
                                                                 confirmButtonClass: 'btn btn-success',
                                                                 cancelButtonClass: 'btn btn-danger',
                                                                 showCancelButton: true,
