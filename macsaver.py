@@ -6,9 +6,16 @@ import os
 from configparser import ConfigParser
 
 config = ConfigParser()
-config.read('config.ini')
-config.add_section('database')
-config.add_section('user')
+config.read(os.path.dirname(os.path.realpath(__file__)) + '/config.ini')
+try:
+    config.add_section('database')
+except:
+    pass
+try:
+    config.add_section('user')
+except:
+    pass
+
 
 config.set('database', 'id', '')
 config.set('database', 'user', '')
