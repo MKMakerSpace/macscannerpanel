@@ -24,17 +24,14 @@ config.set('database', 'host', '')
 
 app = Flask(__name__)
 app.secret_key = 'SuperSecret'
-try:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://' + \
-                                            config.get('database', 'user') + \
-                                            ':' + \
-                                            config.get('database', 'pass') + \
-                                            '@' + \
-                                            config.get('database', 'host') + \
-                                            '/' + \
-                                            config.get('database', 'id')
-except:
-    pass
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://' + \
+                                        config.get('database', 'user') + \
+                                        ':' + \
+                                        config.get('database', 'pass') + \
+                                        '@' + \
+                                        config.get('database', 'host') + \
+                                        '/' + \
+                                        config.get('database', 'id')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
