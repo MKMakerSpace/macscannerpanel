@@ -9,7 +9,7 @@ A web interface for the mk hackersapce mac scanner
 
 ### Install Requiremnts
 
-`sudo pip imstall -r requirements.txt`
+`sudo pip install -r requirements.txt`
 
 ### Run
 
