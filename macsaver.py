@@ -1,9 +1,8 @@
 from flask import *
 from functools import *
 from flask_sqlalchemy import SQLAlchemy
-
 import os
-from configparser import ConfigParser
+from configparser import *
 
 config = ConfigParser()
 config.read(os.path.dirname(os.path.realpath(__file__)) + '/config.ini')
@@ -19,14 +18,18 @@ except:
 
 app = Flask(__name__)
 app.secret_key = 'SuperSecret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://' + \
-                                        config.get('database', 'user') + \
-                                        ':' + \
-                                        config.get('database', 'pass') + \
-                                        '@' + \
-                                        config.get('database', 'host') + \
-                                        '/' + \
-                                        config.get('database', 'id')
+try:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://' + \
+                                            config.get('database', 'user') + \
+                                            ':' + \
+                                            config.get('database', 'pass') + \
+                                            '@' + \
+                                            config.get('database', 'host') + \
+                                            '/' + \
+                                            config.get('database', 'id')
+except NoOptionError:
+    pass
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
