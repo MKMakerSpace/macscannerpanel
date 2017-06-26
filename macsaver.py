@@ -17,11 +17,6 @@ except:
     pass
 
 
-config.set('database', 'id', '')
-config.set('database', 'user', '')
-config.set('database', 'pass', '')
-config.set('database', 'host', '')
-
 app = Flask(__name__)
 app.secret_key = 'SuperSecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://' + \
@@ -85,7 +80,7 @@ def home():
     try:
         data = Scanner.query.all()
     except:
-        return render_template('index.html')
+        return 'Error establishing database connection'
 
     return render_template('index.html', data=data)
 
