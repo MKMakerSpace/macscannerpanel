@@ -3,6 +3,13 @@ from functools import *
 from flask_sqlalchemy import SQLAlchemy
 import os
 from configparser import *
+from slackclient import SlackClient
+import random
+
+
+client_id = '118121209712.192875325748'
+client_secret = '06d8688a6fcfd4ac26bc9f5ee6e0cd10'
+oauth_scope = 'bot,channels:read,chat:write:bot,commands'
 
 config = ConfigParser()
 config.read(os.path.dirname(os.path.realpath(__file__)) + '/config.ini')
@@ -46,8 +53,6 @@ class Scanner(db.Model):
     def __init__(self, mac, name):
         self.mac = mac
         self.name = name
-
-
 def login_required(f):
     # noinspection PyGlobalUndefined
     @wraps(f)
@@ -170,6 +175,92 @@ def setup():
         db.create_all()
         return redirect(url_for('home'))
     return render_template('setup.html')
+
+
+@app.route("/begin_auth", methods=["GET"])
+def pre_install():
+    return '''
+      <a href="https://slack.com/oauth/authorize?scope={0}&client_id={1}">
+          Add to Slack
+      </a>
+  '''.format(oauth_scope, client_id)
+
+
+@app.route("/finish_auth", methods=["GET", "POST"])
+def post_install():
+
+    # Retrieve the auth code from the request params
+    auth_code = request.args['code']
+
+    # An empty string is a valid token for this request
+    sc = SlackClient("")
+
+    # Request the auth tokens from Slack
+    auth_response = sc.api_call(
+    "oauth.access",
+    client_id=client_id,
+    client_secret=client_secret,
+    code=auth_code)
+    # Save the bot token to an environmental variable or to your data store
+    # for later use
+    os.environ["SLACK_USER_TOKEN"] = auth_response['access_token']
+    os.environ["SLACK_BOT_TOKEN"] = auth_response['bot']['bot_access_token']
+    sc = SlackClient(os.environ["SLACK_BOT_TOKEN"])
+
+    sc.api_call(
+      "chat.postMessage",
+      channel="#macscanner",
+      text="Hi, I'm the MacScanner bot! You can ask me who's at the shed by using the /shed command."
+    )
+    # Don't forget to let the user know that auth has succeeded!
+    return "Auth complete!"
+
+
+@app.route("/slack/command/shed", methods=["POST"])
+def command_shed():
+    names = ['James', 'Carl', 'Paul', 'Jim', 'Michael', 'Tom', 'Jack', 'Andy']
+    unknown = 0
+    inshed = []
+    for _ in range(random.randint(1,8)):
+        choice = random.choice(names)
+        if choice not in inshed:
+            inshed.append(choice)
+    unknown = random.randint(0, 6)
+    string = ''
+    if len(inshed) == 2:
+        string = inshed[0] + ' and ' + inshed[1] + ' are at the shed.'
+        return string
+    if len(inshed) > 1:
+        for a in range(len(inshed)-1):
+            string= string + inshed[a] + ', '
+    if unknown > 1:
+        string = string + inshed [-1] + ' as well as ' + str(unknown) + ' anonymous hackers are at the shed.'
+    elif len(inshed) == 1:
+        string = inshed[-1] + ' is at the shed.'
+    elif len(inshed) > 1 and unknown == 0:
+        string = string + ' and ' + inshed[-1] + 'are at the shed.'
+    else:
+        string = string + inshed [-1] + ' as well as one anonymous hacker are at the shed.'
+    return string
+
+
+@app.route("/slack/command/args", methods=["GET","POST"])
+def command_args():
+    token = request.form.get('token', None)
+    command = request.form.get('command', None)
+    args = request.form.get('text', None)
+    username = request.form.get('user_name')
+    channel_id = request.form.get('channel_id')
+    if not token:
+        abort(400)
+    sc = SlackClient('xoxb-192020136560-1k2wUqp9teSYICulDFuyyJDO')
+
+    sc.api_call(
+      "chat.postMessage",
+      channel='#general',
+      text='@' + username + ' ased me to say: ' + args
+    )
+    return Response(), 200
 
 if __name__ == '__main__':
     app.run(debug=True, threaded=True)
